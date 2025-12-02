@@ -480,14 +480,7 @@ print(p_bRALjRAL, n = 5)
 ```
 
 ```{r}
-pendle_data_02_24 <- dplyr::bind_rows(
-  pend_02_24,  # alle vanlige pendlestrømmer
-  total,       # k0000 TotaltBo / TotaltArb
-  p_bRALjRAL   # k9999 RAL / RAL
-)
-
-dim(pendle_data_02_24)
-print(pendle_data_02_24, n = 5)
+pend_02_24 <- bind_rows(pend_02_24, p_bRALjRAL)
 
 ```
 
@@ -517,8 +510,6 @@ pendlematrise_2010 %>%
 
 ```
 
-
-
 ```{r}
 totalt_arb <- pend_02_24 |>
   group_by(aar, akom, akom_navn) |>
@@ -528,6 +519,7 @@ totalt_arb <- pend_02_24 |>
     bkom_navn = "TotaltArb"
   )
 ```
+
 
 ```{r}
 totalt_bo <- pend_02_24 |>
@@ -540,50 +532,23 @@ totalt_bo <- pend_02_24 |>
 ```
 
 ```{r}
-pendle_data_02_24 <- dplyr::bind_rows(
-  pend_02_24,  # alle vanlige pendlingsstrømmer
-  totalt_arb,  # k0000 – TotaltArb
-  totalt_bo    # k0000 – TotaltBo
+pendle_data_02_24 <- bind_rows(
+  pend_02_24,
+  totalt_arb,
+  totalt_bo
 )
 
-# sjekk at det ser riktig ut
 dim(pendle_data_02_24)
-names(pendle_data_02_24)
 print(pendle_data_02_24, n = 5)
 
 ```
 
+
+
+
 ```{r}
 dim(pendle_data_02_24)
 ```
-```{r}
-names(pendle_data_02_24)
-```
-
-```{r}
-print(pendle_data_02_24, n = 5)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
