@@ -535,7 +535,8 @@ totalt_bo <- pend_02_24 |>
 pendle_data_02_24 <- bind_rows(
   pend_02_24,
   totalt_arb,
-  totalt_bo
+  totalt_bo,
+  total
 )
 
 dim(pendle_data_02_24)
@@ -545,17 +546,74 @@ print(pendle_data_02_24, n = 5)
 
 
 
-
 ```{r}
 dim(pendle_data_02_24)
 ```
 
 
+```{r}
+names(pendle_data_02_24)
+```
+
+
+```{r}
+print(pendle_data_02_24, n = 5)
+```
 
 
 
 
+## Andel Pendlere 
 
+```{r}
+andel_pendle_data_02_24 <- pendle_data_02_24 %>% 
+  unite(knrN, akom, akom_navn) %>% 
+  group_by(aar, bkom, bkom_navn) %>%
+  pivot_wider(
+    names_from = knrN,
+    values_from = pendlere
+  ) %>%
+  as_tibble() %>% 
+  mutate(
+    across(
+      .cols = k1103_Stavanger:k0000_TotaltBo,
+# standard anonym funksjon
+      .fns = function(x) round((x / k0000_TotaltBo) * 100, digits = 4)
+    )
+    ) %>% 
+  ungroup()
+```
+
+
+
+```{r}
+dim(andel_pendle_data_02_24)
+```
+
+```{r}
+names(andel_pendle_data_02_24)
+```
+
+```{r}
+tab <- andel_pendle_data_02_24 |> 
+  filter(aar == 2017) |> 
+  select(-aar, -bkom_navn)
+
+
+names(tab) <- str_replace_all(names(tab), "_", "\n")
+
+tab |> 
+  as_flextable(
+    show_coltype = FALSE,
+    max_row = 30
+  ) |> 
+  #rotate(rotation = "tbrl", part = "header") |> 
+  line_spacing(space = 0.5, part = "body") |> 
+  colformat_double(big.mark = ' ', digits = 2) |> 
+  set_table_properties(width = 0.25, layout = "autofit") |> 
+  padding(padding = 3) |> 
+  delete_part("footer")
+```
 
 
 
