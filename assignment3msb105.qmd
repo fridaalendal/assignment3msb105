@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+
 ```{r}
 library(tidyverse) |> suppressPackageStartupMessages()
 library(lubridate) |> suppressPackageStartupMessages()
@@ -670,6 +671,8 @@ print(andel_pendle_data_02_24_long, n = 8, width = 70)
 ## Bo- og arbeidsmarkedsregioner NIBR/TØI 2020 
 
 
+
+
 ```{r}
 
 ba49 <- c("k1103", "k1108", "k1124", "k1127", "k1119", "k1120", "k1121", "k1122", "k1130", "k1144")
@@ -684,7 +687,7 @@ ba53 <- c("k1135"
 ba55 <- c("k1160", "k4611"
 )
 
-
+  
 ```
 
 
@@ -693,7 +696,7 @@ ba55 <- c("k1160", "k4611"
 pend_ba <- pendle_data_02_24 |>
   filter(akom != "k0000", bkom != "k0000") |>
   mutate(
-    ## bo-region (ut fra bkom)
+  
     ba_reg_bo = case_when(
       bkom %in% ba49 ~ "bo49",
       bkom %in% ba50 ~ "bo50",
@@ -704,7 +707,7 @@ pend_ba <- pendle_data_02_24 |>
       bkom == "k9999" ~ "bo99",   
       TRUE ~ NA_character_
     ),
-    ## arbeids-region (ut fra akom)
+    
     ba_reg_arb = case_when(
       akom %in% ba49 ~ "arb49",
       akom %in% ba50 ~ "arb50",
@@ -739,7 +742,6 @@ ba_mat_2010
 ## Pendling internt i region 49
 
 ```{r}
-# Kommuner i BA-region 49 (Stavanger/Sandnes)
 reg49_kom <- c("k1103","k1108","k1119","k1120","k1121",
                "k1122","k1124","k1127","k1130","k1144")
 
@@ -756,8 +758,9 @@ pend_49_2020 <- pendle_data_02_24 |>
 ```
 
 
-```{r}
 
+
+```{r}
 
 mat_49_2020 <- pend_49_2020 |>
   mutate(
@@ -777,10 +780,9 @@ mat_49_2020
 ```
 
 
-```{r}
-library(flextable)
-library(dplyr)
 
+
+```{r}
 rekkefolge <- c("1103","1108","1119","1120","1121",
                 "1122","1124","1127","1130","1144","9999")
 
@@ -796,7 +798,6 @@ mat_49_2020_tab <- mat_49_2020 |>
 mat_49_2020_tab
 
 ```
-
 
 
 
@@ -820,16 +821,15 @@ utenfor_til_sandnes_2020
 
 ```{r}
 
-# kommunene i region 49 (alle unntatt 9999)
 komm <- mat_49_2020$bkom[mat_49_2020$bkom != "9999"]
 
-# ut av regionen (bor i kommunen, jobber i 9999)
+
 ut <- mat_49_2020 |>
   filter(bkom %in% komm) |>
   select(bkom, `9999`) |>
   rename(ut = `9999`)
 
-# inn til kommunen (bor i 9999, jobber i kommunen)
+
 inn <- mat_49_2020 |>
   filter(bkom == "9999") |>
   select(-bkom) |>
@@ -840,7 +840,7 @@ inn <- mat_49_2020 |>
 balanse <- left_join(ut, inn, by = "bkom")
 
 balanse
-# hvilke har flere ut enn inn?
+
 kommuner_flere_ut <- balanse |>
   filter(ut > inn) |>
   pull(bkom)
