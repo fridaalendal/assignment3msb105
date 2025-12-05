@@ -615,6 +615,287 @@ tab |>
   delete_part("footer")
 ```
 
+```{r}
+
+library(dplyr)
+library(tidyr)
+library(lubridate)
+
+andel_pendle_data_02_24_long <- andel_pendle_data_02_24 |>
+  # alle kolonner som starter på "k" er destinasjonskommuner
+  pivot_longer(
+    cols = starts_with("k"),
+    names_to  = "knrN",
+    values_to = "andel"
+  ) |>
+  # splitt f.eks. "k1103_Stavanger" -> "k1103" + "Stavanger"
+  separate(knrN, into = c("akom", "akom_navn"), sep = "_") |>
+  # gjør år om til dato (1. jan hvert år)
+  mutate(aar = ymd(paste0(aar, "-01-01"))) |>
+  select(aar, akom, akom_navn, bkom, bkom_navn, andel)
+
+
+```
+
+
+
+
+```{r}
+pend_02_24 |> 
+  filter(aar == "2002") |> 
+  select(akom, akom_navn) |> 
+  distinct() |> 
+  as_flextable(max_row = 30, show_coltype = FALSE) |> 
+  line_spacing(space = 0.3) |> 
+  delete_part("footer")
+```
+
+
+
+```{r}
+dim(andel_pendle_data_02_24_long)
+```
+
+
+```{r}
+names(andel_pendle_data_02_24_long)
+```
+
+```{r}
+print(andel_pendle_data_02_24_long, n = 8, width = 70)
+```
+
+
+
+## Bo- og arbeidsmarkedsregioner NIBR/TØI 2020 
+
+
+```{r}
+
+ba49 <- c("k1103", "k1108", "k1124", "k1127", "k1119", "k1120", "k1121", "k1122", "k1130", "k1144")
+ba50 <- c("k1106", "k1146", "k1149", "k4612", "k1145"
+)
+ba51 <- c("k1133"
+)
+ba52 <- c("k1134"
+)
+ba53 <- c("k1135"
+)
+ba55 <- c("k1160", "k4611"
+)
+
+
+```
+
+
+```{r}
+
+pend_ba <- pendle_data_02_24 |>
+  filter(akom != "k0000", bkom != "k0000") |>
+  mutate(
+    ## bo-region (ut fra bkom)
+    ba_reg_bo = case_when(
+      bkom %in% ba49 ~ "bo49",
+      bkom %in% ba50 ~ "bo50",
+      bkom %in% ba51 ~ "bo51",
+      bkom %in% ba52 ~ "bo52",
+      bkom %in% ba53 ~ "bo53",
+      bkom %in% ba55 ~ "bo55",
+      bkom == "k9999" ~ "bo99",   
+      TRUE ~ NA_character_
+    ),
+    ## arbeids-region (ut fra akom)
+    ba_reg_arb = case_when(
+      akom %in% ba49 ~ "arb49",
+      akom %in% ba50 ~ "arb50",
+      akom %in% ba51 ~ "arb51",
+      akom %in% ba52 ~ "arb52",
+      akom %in% ba53 ~ "arb53",
+      akom %in% ba55 ~ "arb55",
+      akom == "k9999" ~ "arb99",  
+      TRUE ~ NA_character_
+    )
+  )
+
+```
+
+
+```{r}
+ba_mat_2010 <- pend_ba |>
+  filter(aar == "2010") |>
+  group_by(ba_reg_bo, ba_reg_arb) |>
+  summarise(pendlere = sum(pendlere), .groups = "drop") |>
+  tidyr::pivot_wider(
+    names_from  = ba_reg_arb,
+    values_from = pendlere
+  ) |>
+  arrange(ba_reg_bo)
+
+ba_mat_2010
+
+```
+
+
+## Pendling internt i region 49
+
+```{r}
+# Kommuner i BA-region 49 (Stavanger/Sandnes)
+reg49_kom <- c("k1103","k1108","k1119","k1120","k1121",
+               "k1122","k1124","k1127","k1130","k1144")
+
+```
+
+```{r}
+pend_49_2020 <- pendle_data_02_24 |>
+  filter(
+    aar == "2020",
+    bkom %in% c(reg49_kom, "k9999"),
+    akom %in% c(reg49_kom, "k9999")
+  )
+
+```
+
+
+```{r}
+
+
+mat_49_2020 <- pend_49_2020 |>
+  mutate(
+    bkom = str_remove(bkom, "^k"),
+    akom = str_remove(akom, "^k")
+  ) |>
+  group_by(bkom, akom) |>
+  summarise(pendlere = sum(pendlere), .groups = "drop") |>
+  pivot_wider(
+    names_from  = akom,
+    values_from = pendlere
+  ) |>
+  arrange(bkom)
+
+mat_49_2020
+
+```
+
+
+```{r}
+library(flextable)
+library(dplyr)
+
+rekkefolge <- c("1103","1108","1119","1120","1121",
+                "1122","1124","1127","1130","1144","9999")
+
+mat_49_2020_tab <- mat_49_2020 |>
+  mutate(bkom = factor(bkom, levels = rekkefolge)) |>
+  arrange(bkom) |>
+  flextable() |>
+  colformat_int(big.mark = " ") |>   # mellomrom som tusenskiller
+  align(align = "center", part = "all") |>
+  autofit() |>
+  set_caption("Pendlematrise for region 49, 2020")
+
+mat_49_2020_tab
+
+```
+
+
+
+
+```{r}
+sola_kvitsoy_2020 <- mat_49_2020 |>
+  dplyr::filter(bkom == "1124") |>
+  dplyr::pull(`1144`)
+
+sola_kvitsoy_2020
+
+```
+
+```{r}
+utenfor_til_sandnes_2020 <- mat_49_2020 |>
+  dplyr::filter(bkom == "9999") |>
+  dplyr::pull(`1108`)
+
+utenfor_til_sandnes_2020
+
+```
+
+```{r}
+
+# kommunene i region 49 (alle unntatt 9999)
+komm <- mat_49_2020$bkom[mat_49_2020$bkom != "9999"]
+
+# ut av regionen (bor i kommunen, jobber i 9999)
+ut <- mat_49_2020 |>
+  filter(bkom %in% komm) |>
+  select(bkom, `9999`) |>
+  rename(ut = `9999`)
+
+# inn til kommunen (bor i 9999, jobber i kommunen)
+inn <- mat_49_2020 |>
+  filter(bkom == "9999") |>
+  select(-bkom) |>
+  pivot_longer(cols = everything(),
+               names_to = "bkom",
+               values_to = "inn")
+
+balanse <- left_join(ut, inn, by = "bkom")
+
+balanse
+# hvilke har flere ut enn inn?
+kommuner_flere_ut <- balanse |>
+  filter(ut > inn) |>
+  pull(bkom)
+
+kommuner_flere_ut
+
+```
+
+## Definerer funksjoner for plot og tabell
+
+
+
+```{r}
+tab_pendlere <- function(data, knr, y = 2003, n =6) {
+  data = filter(data, bkom == knr)
+  data = filter(data, !akom %in% c(knr, "k0000"))
+  data = filter(data, year(aar) == y)
+  data = arrange(data, desc(andel))
+  data = head(data, n = n)
+  data = select(data, `Place of work` = akom_navn, `Prop. in %` = andel)
+  flxtab = as_flextable(data, show_coltype = FALSE, max_row = 30)
+  flxtab = delete_part(flxtab, "footer")
+  flxtab = theme_booktabs(flxtab)
+  flxtab = line_spacing(flxtab, space = 0.3)
+}
+```
+
+```{r}
+apd_0224_l <- andel_pendle_data_02_24_long
+rm(andel_pendle_data_02_24_long)
+```
+
+
+
+```{r}
+apd_0224_l |> 
+  filter(akom == bkom) |>
+  filter(!(akom == "k9999" & bkom == "k9999")) |>
+  filter(!(akom == "k0000" & bkom == "k0000")) |> 
+  rename(
+    Bosted = bkom_navn
+  ) |>
+  ggplot(
+    mapping = aes(
+      x = aar, 
+      y = andel, 
+      group = bkom,
+      colour = bkom
+      )
+    ) +
+  geom_line(lwd = 0.75) +
+  theme(legend.position = 'bottom') +
+  ggtitle("Intern pendling")
+```
+
 
 
 
