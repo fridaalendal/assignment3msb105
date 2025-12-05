@@ -748,21 +748,24 @@ reg49_kom <- c("k1103","k1108","k1119","k1120","k1121",
 ```
 
 ```{r}
-pend_49_2020 <- pendle_data_02_24 |>
-  filter(
-    aar == "2020",
-    bkom %in% c(reg49_kom, "k9999"),
-    akom %in% c(reg49_kom, "k9999")
-  )
+pend_49 <- pend_ba |>
+  mutate(akom = case_when(
+    ba_reg_arb == "arb49" ~ akom,
+    .default = "k9999"
+  ),
+  bkom = case_when(
+    ba_reg_bo == "bo49" ~ bkom,
+    .default = "k9999"
+  ))
 
 ```
 
 
 
-
 ```{r}
 
-mat_49_2020 <- pend_49_2020 |>
+mat_49_2020 <- pend_49 |>
+  filter(aar == "2020") |> 
   mutate(
     bkom = str_remove(bkom, "^k"),
     akom = str_remove(akom, "^k")
@@ -790,7 +793,7 @@ mat_49_2020_tab <- mat_49_2020 |>
   mutate(bkom = factor(bkom, levels = rekkefolge)) |>
   arrange(bkom) |>
   flextable() |>
-  colformat_int(big.mark = " ") |>   # mellomrom som tusenskiller
+  colformat_int(big.mark = " ") |>   
   align(align = "center", part = "all") |>
   autofit() |>
   set_caption("Pendlematrise for region 49, 2020")
@@ -897,6 +900,9 @@ apd_0224_l |>
 ```
 
 
+```{r}
+
+```
 
 
 
