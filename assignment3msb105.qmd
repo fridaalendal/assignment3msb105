@@ -902,7 +902,239 @@ apd_0224_l |>
 
 ```{r}
 
+andel_samme_kommune_2023 <- apd_0224_l |>
+  dplyr::filter(
+    aar == as.Date("2023-01-01"),   
+    
+    akom == bkom                    
+  ) |>
+  dplyr::mutate(
+    Bosted = bkom_navn              
+  ) |>
+  dplyr::select(
+    aar, akom, akom_navn,
+    bkom, Bosted,
+    andel
+  ) |>
+  dplyr::arrange(dplyr::desc(andel))
+
+
 ```
+
+
+```{r}
+andel_samme_kommune_2023_tab <- andel_samme_kommune_2023 |>
+  knitr::kable(
+    digits  = 1,
+    caption = "Tabell som viser andelen av arbeidstakere som jobber i samme kommune som hvor de bor i 2023.",
+    booktabs = TRUE
+  )
+
+andel_samme_kommune_2023_tab
+
+```
+
+
+```{r}
+intern_utvalg <- apd_0224_l |>
+  dplyr::filter(
+    akom == bkom,
+    !(akom == "k9999" & bkom == "k9999"),
+    !(akom == "k0000" & bkom == "k0000"),
+    bkom_navn %in% c("Hjelmeland", "Hå", "Kvitsøy", "Stavanger", "Strand")
+  )
+
+
+legend_labels <- intern_utvalg |>
+  dplyr::distinct(bkom, bkom_navn) |>
+  dplyr::arrange(bkom)
+
+ggplot(
+  intern_utvalg,
+  aes(x = aar, y = andel, group = bkom, colour = bkom)
+) +
+  geom_line(linewidth = 0.75) +
+  scale_colour_discrete(
+    name   = "Bosted",
+    breaks = legend_labels$bkom,
+    labels = legend_labels$bkom_navn
+  ) +
+  labs(
+    title = "Internpendling et utvalg kommuner",
+    x     = "aar",
+    y     = "andel"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title      = element_text(face = "bold", size = 18)
+  )
+
+```
+
+```{r}
+plot_pendlere <- function(data, bosted_kode, grense = 1) {
+  
+  # Finn navn på bostedet (f.eks. "Stavanger")
+  bosted_navn <- data |>
+    dplyr::filter(bkom == bosted_kode) |>
+    dplyr::distinct(bkom_navn) |>
+    dplyr::pull()
+  
+  data |>
+    # 1) Bare de som bor i valgt kommune
+    dplyr::filter(bkom == bosted_kode) |>
+    
+    # 2) Vi vil se hvor de pendler UT, så fjern de som jobber i samme kommune
+    dplyr::filter(akom != bkom) |>
+    
+    # 3) Ta bare med arbeidssteder som har minst grense % i minst ett år
+    dplyr::group_by(akom, akom_navn) |>
+    dplyr::filter(max(andel, na.rm = TRUE) >= grense) |>
+    dplyr::ungroup() |>
+    
+    # 4) Plot
+    ggplot(aes(x = aar, y = andel, colour = akom_navn, group = akom_navn)) +
+    geom_line(linewidth = 0.75) +
+    labs(
+      title  = paste0("Hvor jobber folk bosatt i ", bosted_navn, " kommune?"),
+      x      = "aar",
+      y      = "Andel av arbeidstakere",
+      colour = "Arbeidssted"
+    ) +
+    theme(
+      legend.position = "bottom",
+      plot.title      = element_text(face = "bold", size = 18)
+    )
+}
+
+```
+
+
+```{r}
+plot_pendlere(apd_0224_l, "k1103", grense = 1) +
+  ylim(0, 12)
+
+```
+
+
+```{r}
+
+#| label: tbl-1103pend
+#| tbl-cap: Andelene som pendler ut av Stavanger i 2023.
+tab_pendlere(apd_0224_l,"k1103", n = 7) |> 
+  colformat_double(digits = 3)
+```
+
+```{r}
+stav_sand <- apd_0224_l |>
+  dplyr::filter(
+    akom == bkom,                    # bor og jobber i samme kommune
+    bkom %in% c("k1103", "k1108")    # Stavanger og Sandnes
+  ) |>
+  dplyr::mutate(Bosted = bkom_navn)  # pen etikett i legenda
+
+ggplot(stav_sand, aes(x = aar, y = andel, colour = Bosted)) +
+  geom_line(linewidth = 0.75) +
+  labs(
+    title = "Utvikling: Andel som både bor og jobber i Stavanger og Sandnes",
+    x     = "aar",
+    y     = "Andel av arbeidstakere",
+    colour = "Arbeidssted"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title      = element_text(face = "bold", size = 18)
+  )
+```
+
+
+
+```{r}
+plot_pendlere <- function(data, bosted_kode, grense = 1) {
+  
+  bosted_navn <- data |>
+    dplyr::filter(bkom == bosted_kode) |>
+    dplyr::distinct(bkom_navn) |>
+    dplyr::pull()
+  
+  data |>
+    dplyr::filter(bkom == bosted_kode) |>
+    dplyr::filter(
+      akom != bkom,
+      akom != "k0000"
+    ) |>
+
+    dplyr::group_by(akom, akom_navn) |>
+    dplyr::filter(max(andel, na.rm = TRUE) >= grense) |>
+    dplyr::ungroup() |>
+    
+
+    ggplot(aes(x = aar, y = andel,
+               colour = akom_navn, group = akom_navn)) +
+    geom_line(linewidth = 0.75) +
+    labs(
+      title  = paste0("Hvor jobber folk bosatt i ", bosted_navn, " kommune?"),
+      x      = "aar",
+      y      = "Andel av arbeidstakere",
+      colour = "Arbeidssted"
+    ) +
+    theme(
+      legend.position = "bottom",
+      plot.title      = element_text(face = "bold", size = 18)
+    )
+}
+
+```
+
+
+
+```{r}
+plot_pendlere(apd_0224_l, "k1108", grense = 1.7)
+  
+
+```
+
+
+
+
+```{r}
+tab_pendlere(apd_0224_l, "k1108") |> 
+  colformat_double(digits = 3)
+```
+
+
+
+```{r}
+plot_pendlere(apd_0224_l, "k1124", grense = 1.7) +
+  ylim(5, 40)   # valgfritt, men da ligner det veldig på Arnstein sitt
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
