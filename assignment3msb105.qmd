@@ -20,6 +20,8 @@ library(PxWebApiData) |> suppressPackageStartupMessages()
 library(flextable) |> suppressPackageStartupMessages()
 ```
 
+# Kommuner i Bokna-regionen
+
 ```{r}
 knr <- as.character(c(
   1102, 1103, 1108, 1124, 1127, 1120, 1122, 1121, 1119,
@@ -39,6 +41,8 @@ knavn <- c(
 
 ```
 
+# Hente data fra SSB
+
 ```{r}
 pend_02_24_ssb_boBF <- ApiData12(
   urlToData  = "03321",
@@ -48,6 +52,9 @@ pend_02_24_ssb_boBF <- ApiData12(
 )
 
 ```
+
+
+
 
 ```{r}
 pend_02_24_boBF <- pend_02_24_ssb_boBF %>% 
@@ -122,6 +129,9 @@ pend_02_24_arbBF <- pend_02_24_ssb_arbBF %>%
 print(pend_02_24_arbBF, n = 5)
 ```
 
+# Kommunesammenslåingene
+
+
 ```{r}
 # Kommuner i Bokna-regionen som IKKE er med i nye Stavanger, Sandnes, Vindafjord
 knr_u_SSV <- paste0(
@@ -134,6 +144,8 @@ knr_u_SSV <- paste0(
 )
 
 ```
+
+# Bosted rundt boknafjorden
 
 ```{r}
 pend_02_24_boBF <- pend_02_24_boBF %>% 
@@ -215,6 +227,9 @@ pend_02_24_boBF_agg |>
   pull(nye_akom) |> 
   print(width = 70)
 ```
+
+# Arbeidssted Bokna-Regionen
+
 
 ```{r}
 
@@ -329,6 +344,10 @@ rm(
 )
 
 ```
+
+
+# Totalt antall arbeidstakere i hele landet per år
+
 
 ```{r}
 
