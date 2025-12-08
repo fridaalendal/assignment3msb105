@@ -1,9 +1,17 @@
 ---
 title: "Assignment 3 in msb105"
+author: "Katinca Valvatne & Frida Alendal"
 format: html
+toc: true
+toc-depth: 3
+code-fold: show
+code-tools: true
+theme: cosmo
+number-sections: true
 editor: visual
----
+lang: nb
 
+---
 
 ```{r}
 library(tidyverse) |> suppressPackageStartupMessages()
@@ -11,7 +19,6 @@ library(lubridate) |> suppressPackageStartupMessages()
 library(PxWebApiData) |> suppressPackageStartupMessages()
 library(flextable) |> suppressPackageStartupMessages()
 ```
-
 
 ```{r}
 knr <- as.character(c(
@@ -31,7 +38,6 @@ knavn <- c(
 )
 
 ```
-
 
 ```{r}
 pend_02_24_ssb_boBF <- ApiData12(
@@ -71,13 +77,9 @@ pend_02_24_boBF <- pend_02_24_ssb_boBF %>%
 
 ```
 
-
-
 ```{r}
 print(pend_02_24_boBF, n = 5)
 ```
-
-
 
 ```{r}
 pend_02_24_ssb_arbBF <- ApiData12(
@@ -88,7 +90,6 @@ pend_02_24_ssb_arbBF <- ApiData12(
 )
 
 ```
-
 
 ```{r}
 pend_02_24_arbBF <- pend_02_24_ssb_arbBF %>% 
@@ -117,12 +118,9 @@ pend_02_24_arbBF <- pend_02_24_ssb_arbBF %>%
   as_tibble()
 ```
 
-
 ```{r}
 print(pend_02_24_arbBF, n = 5)
 ```
-
-
 
 ```{r}
 # Kommuner i Bokna-regionen som IKKE er med i nye Stavanger, Sandnes, Vindafjord
@@ -136,7 +134,6 @@ knr_u_SSV <- paste0(
 )
 
 ```
-
 
 ```{r}
 pend_02_24_boBF <- pend_02_24_boBF %>% 
@@ -183,7 +180,6 @@ pend_02_24_boBF_agg <- pend_02_24_boBF %>%
 
 ```
 
-
 ```{r}
 print(pend_02_24_boBF_agg, n = 5)
 
@@ -194,16 +190,13 @@ dim(pend_02_24_boBF_agg)
 
 ```
 
-
-
 ```{r}
 pend_02_24_boBF_agg %>% 
-  filter(nye_akom_navn == "Stavanger") %>%   # alle som JOBBER i Stavanger
-  arrange(aar, nye_bkom_navn) %>%            # sorter pent på år og bosted
+  filter(nye_akom_navn == "Stavanger") %>%   
+  arrange(aar, nye_bkom_navn) %>%            
   print(n = 22)
 
 ```
-
 
 ```{r}
 pend_02_24_boBF_agg %>% 
@@ -222,10 +215,6 @@ pend_02_24_boBF_agg |>
   pull(nye_akom) |> 
   print(width = 70)
 ```
-
-
-
-
 
 ```{r}
 
@@ -265,7 +254,6 @@ pend_02_24_arbBF <- pend_02_24_arbBF %>%
   )
 
 ```
-
 
 ```{r}
 pend_02_24_arbBF_agg <- pend_02_24_arbBF %>% 
@@ -308,7 +296,6 @@ names(pend_02_24_arbBF_agg)
 
 ```
 
-
 ```{r}
 
 boBF_arb_RAL <- pend_02_24_boBF_agg %>% 
@@ -317,7 +304,6 @@ boBF_arb_RAL <- pend_02_24_boBF_agg %>%
 dim(boBF_arb_RAL)
 
 ```
-
 
 ```{r}
 
@@ -332,8 +318,6 @@ print(pend_02_24, n = 5)
 
 ```
 
-
-
 ```{r}
 
 rm(
@@ -346,11 +330,7 @@ rm(
 
 ```
 
-
 ```{r}
-
-# Definer fylkesnumrene (`fnr`)
-
 
 # Fylkesnummer vi skal hente (uten Svalbard og kontinentalsokkelen)
 fnr <- c(
@@ -361,7 +341,6 @@ fnr <- c(
 )
 
 ```
-
 
 ```{r}
 
@@ -401,7 +380,6 @@ BF <- c(knr_u_SSV, "k1103", "k1108", "k1160")
 
 ```
 
-
 ```{r}
 bBFjHL <- pend_02_24 %>%
   filter(bkom %in% BF) %>%          # bor i BF
@@ -412,7 +390,6 @@ dim(bBFjHL)
 print(bBFjHL, n = 5)
 
 ```
-
 
 ```{r}
 bRALjBF <- pend_02_24 %>%
@@ -428,8 +405,6 @@ print(bRALjBF, n = 5)
 
 ```
 
-
-
 ```{r}
 tot_arb_HL <- left_join(tot_arb_HL, bBFjHL,  by = join_by(aar))
 tot_arb_HL <- left_join(tot_arb_HL, bRALjBF, by = join_by(aar))
@@ -443,8 +418,6 @@ dim(tot_arb_HL)
 print(tot_arb_HL, n = 10)
 
 ```
-
-
 
 ```{r}
 total <- tot_arb_HL %>%
@@ -461,8 +434,6 @@ dim(total)
 print(total, n = 5)
 
 ```
-
-
 
 ```{r}
 p_bRALjRAL <- tot_arb_HL %>% 
@@ -490,8 +461,8 @@ pendlematrise_2010 <- pend_02_24 %>%
   ungroup() %>% 
   filter(aar == "2010") %>% 
   select(bkom, akom, pendlere) %>% 
-  group_by(bkom, akom) %>%              # sørg for én rad per kombinasjon
-  summarise(pendlere = sum(pendlere),   # summer hvis det finnes duplikater
+  group_by(bkom, akom) %>%              
+  summarise(pendlere = sum(pendlere),   
             .groups = "drop") %>% 
   tidyr::pivot_wider(
     names_from  = akom,
@@ -521,7 +492,6 @@ totalt_arb <- pend_02_24 |>
   )
 ```
 
-
 ```{r}
 totalt_bo <- pend_02_24 |>
   group_by(aar, bkom, bkom_navn) |>
@@ -545,26 +515,19 @@ print(pendle_data_02_24, n = 5)
 
 ```
 
-
-
 ```{r}
 dim(pendle_data_02_24)
 ```
-
 
 ```{r}
 names(pendle_data_02_24)
 ```
 
-
 ```{r}
 print(pendle_data_02_24, n = 5)
 ```
 
-
-
-
-## Andel Pendlere 
+## Andel Pendlere
 
 ```{r}
 andel_pendle_data_02_24 <- pendle_data_02_24 %>% 
@@ -578,14 +541,12 @@ andel_pendle_data_02_24 <- pendle_data_02_24 %>%
   mutate(
     across(
       .cols = k1103_Stavanger:k0000_TotaltBo,
-# standard anonym funksjon
+
       .fns = function(x) round((x / k0000_TotaltBo) * 100, digits = 4)
     )
     ) %>% 
   ungroup()
 ```
-
-
 
 ```{r}
 dim(andel_pendle_data_02_24)
@@ -623,23 +584,17 @@ library(tidyr)
 library(lubridate)
 
 andel_pendle_data_02_24_long <- andel_pendle_data_02_24 |>
-  # alle kolonner som starter på "k" er destinasjonskommuner
   pivot_longer(
     cols = starts_with("k"),
     names_to  = "knrN",
     values_to = "andel"
   ) |>
-  # splitt f.eks. "k1103_Stavanger" -> "k1103" + "Stavanger"
   separate(knrN, into = c("akom", "akom_navn"), sep = "_") |>
-  # gjør år om til dato (1. jan hvert år)
   mutate(aar = ymd(paste0(aar, "-01-01"))) |>
   select(aar, akom, akom_navn, bkom, bkom_navn, andel)
 
 
 ```
-
-
-
 
 ```{r}
 pend_02_24 |> 
@@ -651,12 +606,9 @@ pend_02_24 |>
   delete_part("footer")
 ```
 
-
-
 ```{r}
 dim(andel_pendle_data_02_24_long)
 ```
-
 
 ```{r}
 names(andel_pendle_data_02_24_long)
@@ -666,12 +618,7 @@ names(andel_pendle_data_02_24_long)
 print(andel_pendle_data_02_24_long, n = 8, width = 70)
 ```
 
-
-
-## Bo- og arbeidsmarkedsregioner NIBR/TØI 2020 
-
-
-
+## Bo- og arbeidsmarkedsregioner NIBR/TØI 2020
 
 ```{r}
 
@@ -689,7 +636,6 @@ ba55 <- c("k1160", "k4611"
 
   
 ```
-
 
 ```{r}
 
@@ -722,7 +668,6 @@ pend_ba <- pendle_data_02_24 |>
 
 ```
 
-
 ```{r}
 ba_mat_2010 <- pend_ba |>
   filter(aar == "2010") |>
@@ -737,7 +682,6 @@ ba_mat_2010 <- pend_ba |>
 ba_mat_2010
 
 ```
-
 
 ## Pendling internt i region 49
 
@@ -760,8 +704,6 @@ pend_49 <- pend_ba |>
 
 ```
 
-
-
 ```{r}
 
 mat_49_2020 <- pend_49 |>
@@ -782,9 +724,6 @@ mat_49_2020
 
 ```
 
-
-
-
 ```{r}
 rekkefolge <- c("1103","1108","1119","1120","1121",
                 "1122","1124","1127","1130","1144","9999")
@@ -801,8 +740,6 @@ mat_49_2020_tab <- mat_49_2020 |>
 mat_49_2020_tab
 
 ```
-
-
 
 ```{r}
 sola_kvitsoy_2020 <- mat_49_2020 |>
@@ -854,10 +791,8 @@ kommuner_flere_ut
 
 ## Definerer funksjoner for plot og tabell
 
-
-
 ```{r}
-tab_pendlere <- function(data, knr, y = 2003, n =6) {
+tab_pendlere <- function(data, knr, y = 2023, n = 7) {
   data = filter(data, bkom == knr)
   data = filter(data, !akom %in% c(knr, "k0000"))
   data = filter(data, year(aar) == y)
@@ -868,15 +803,15 @@ tab_pendlere <- function(data, knr, y = 2003, n =6) {
   flxtab = delete_part(flxtab, "footer")
   flxtab = theme_booktabs(flxtab)
   flxtab = line_spacing(flxtab, space = 0.3)
+  flxtab
 }
+
 ```
 
 ```{r}
 apd_0224_l <- andel_pendle_data_02_24_long
 rm(andel_pendle_data_02_24_long)
 ```
-
-
 
 ```{r}
 apd_0224_l |> 
@@ -899,7 +834,6 @@ apd_0224_l |>
   ggtitle("Intern pendling")
 ```
 
-
 ```{r}
 
 andel_samme_kommune_2023 <- apd_0224_l |>
@@ -921,7 +855,6 @@ andel_samme_kommune_2023 <- apd_0224_l |>
 
 ```
 
-
 ```{r}
 andel_samme_kommune_2023_tab <- andel_samme_kommune_2023 |>
   knitr::kable(
@@ -933,7 +866,6 @@ andel_samme_kommune_2023_tab <- andel_samme_kommune_2023 |>
 andel_samme_kommune_2023_tab
 
 ```
-
 
 ```{r}
 intern_utvalg <- apd_0224_l |>
@@ -974,25 +906,20 @@ ggplot(
 ```{r}
 plot_pendlere <- function(data, bosted_kode, grense = 1) {
   
-  # Finn navn på bostedet (f.eks. "Stavanger")
+  
   bosted_navn <- data |>
     dplyr::filter(bkom == bosted_kode) |>
     dplyr::distinct(bkom_navn) |>
     dplyr::pull()
   
   data |>
-    # 1) Bare de som bor i valgt kommune
     dplyr::filter(bkom == bosted_kode) |>
-    
-    # 2) Vi vil se hvor de pendler UT, så fjern de som jobber i samme kommune
     dplyr::filter(akom != bkom) |>
     
-    # 3) Ta bare med arbeidssteder som har minst grense % i minst ett år
     dplyr::group_by(akom, akom_navn) |>
     dplyr::filter(max(andel, na.rm = TRUE) >= grense) |>
     dplyr::ungroup() |>
-    
-    # 4) Plot
+  
     ggplot(aes(x = aar, y = andel, colour = akom_navn, group = akom_navn)) +
     geom_line(linewidth = 0.75) +
     labs(
@@ -1009,29 +936,26 @@ plot_pendlere <- function(data, bosted_kode, grense = 1) {
 
 ```
 
-
 ```{r}
 plot_pendlere(apd_0224_l, "k1103", grense = 1) +
   ylim(0, 12)
 
 ```
 
-
 ```{r}
 
-#| label: tbl-1103pend
-#| tbl-cap: Andelene som pendler ut av Stavanger i 2023.
-tab_pendlere(apd_0224_l,"k1103", n = 7) |> 
+tab_pendlere(apd_0224_l, "k1103") |>
   colformat_double(digits = 3)
+
 ```
 
 ```{r}
 stav_sand <- apd_0224_l |>
   dplyr::filter(
-    akom == bkom,                    # bor og jobber i samme kommune
-    bkom %in% c("k1103", "k1108")    # Stavanger og Sandnes
+    akom == bkom,                    
+    bkom %in% c("k1103", "k1108")    
   ) |>
-  dplyr::mutate(Bosted = bkom_navn)  # pen etikett i legenda
+  dplyr::mutate(Bosted = bkom_navn)  
 
 ggplot(stav_sand, aes(x = aar, y = andel, colour = Bosted)) +
   geom_line(linewidth = 0.75) +
@@ -1046,8 +970,6 @@ ggplot(stav_sand, aes(x = aar, y = andel, colour = Bosted)) +
     plot.title      = element_text(face = "bold", size = 18)
   )
 ```
-
-
 
 ```{r}
 plot_pendlere <- function(data, bosted_kode, grense = 1) {
@@ -1086,27 +1008,111 @@ plot_pendlere <- function(data, bosted_kode, grense = 1) {
 
 ```
 
-
-
 ```{r}
 plot_pendlere(apd_0224_l, "k1108", grense = 1.7)
   
 
 ```
 
-
-
-
 ```{r}
 tab_pendlere(apd_0224_l, "k1108") |> 
   colformat_double(digits = 3)
 ```
 
-
-
 ```{r}
 plot_pendlere(apd_0224_l, "k1124", grense = 1.7) +
-  ylim(5, 40)   # valgfritt, men da ligner det veldig på Arnstein sitt
+  ylim(5, 40)   
+
+```
+
+```{r}
+
+#| label: tbl-solaPend
+#| tbl-cap: Andelene som pendler ut av Sola kommune i 2023.
+
+tab_pendlere(apd_0224_l, "k1124") |>
+  colformat_double(digits = 3)
+```
+
+```{r}
+
+plot_pendlere(apd_0224_l, "k1120", grense = 3) +
+  ylim(0, 18) +    
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 18)
+  )
+```
+
+```{r}
+
+tab_pendlere(apd_0224_l, "k1120", n = 7) |>
+  colformat_double(digits = 3)
+```
+
+```{r}
+
+plot_pendlere(apd_0224_l, "k1106", grense = 2) +
+  ylim(0, 15) +   
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 18)
+  )
+```
+
+```{r}
+
+tab_pendlere(apd_0224_l, "k1106", n = 7) |>
+  colformat_double(digits = 3)
+```
+
+```{r}
+
+plot_pendlere(
+  apd_0224_l,
+  "k1149",      
+  grense = 2  
+) +
+  ylim(0, 30) +  
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 18)
+  )
+
+```
+
+```{r}
+
+tab_pendlere(apd_0224_l, "k1149") |>
+  colformat_double(digits = 3)
+
+```
+
+# Pendlematriser
+
+```{r}
+pend_mat <- function(data, y) {
+  data |>
+    dplyr::filter(aar == y) |>     
+    dplyr::select(
+      bkom,                        
+      akom,                        
+      pendlere                            
+    ) |>
+    tidyr::pivot_wider(
+      id_cols    = bkom,
+      names_from = akom,
+      values_from = pendlere              
+    ) |>
+    dplyr::arrange(bkom) |>
+    as.data.frame()
+}
+
+
+```
+
+```{r}
+pend_mat(pendle_data_02_24, y = 2002)
 
 ```
 
@@ -1114,22 +1120,63 @@ plot_pendlere(apd_0224_l, "k1124", grense = 1.7) +
 
 
 
+```{r}
+
+
+pendlemat_2002 <- pend_mat(pendle_data_02_24, y = 2002)
+
+pendlemat_2002_tab <-
+  pendlemat_2002 |>
+  flextable::flextable() |>
+  flextable::colformat_int(big.mark = " ") |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit() |>
+  flextable::set_caption("Table 12: Pendlematrise år 2002.")
+
+pendlemat_2002_tab
+
+```
+
+
+```{r}
+pend_mat_tab <- function(data, y, caption = NULL) {
+  mat <- pend_mat(data, y)
+
+  flextable::flextable(mat) |>
+    flextable::colformat_int(big.mark = " ") |>
+    flextable::align(align = "center", part = "all") |>
+    flextable::autofit() |>
+    flextable::set_caption(
+      if (is.null(caption)) paste0("Pendlematrise år ", y, ".") else caption
+    )
+}
+
+```
+
+
+```{r}
+pend_mat_tab(pendle_data_02_24, 2005)
+```
+
+
+```{r}
+pend_mat_tab(pendle_data_02_24, 2010)
+```
+
+
+```{r}
+pend_mat_tab(pendle_data_02_24, 2015)
+```
 
 
 
+```{r}
+pend_mat_tab(pendle_data_02_24, 2023)
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
+```{r}
+pend_mat_tab(pendle_data_02_24, 2024)
+```
 
 
 
