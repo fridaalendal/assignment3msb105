@@ -1,0 +1,37 @@
+---
+title: "ag comments"
+format: html
+editor: source
+---
+
+## Generelle kommentarer
+
+- Dokumentet er reproduserbart. Flott!
+- Her var mange fine pendlematriser. ;-) Se hvordan de kan presenteres i et dokument vha. flextable og Quarto konstruksjonen `:::{.landscape} <ftab> :::`.
+- Ser at dere bruker pipes inne i egendefinerte funksjoner. Det er jeg generelt skeptisk til. Se mitt forslag til `pend_mat_tab()` der en lokal variabel (`mat`) er brukt for å bygge opp det som skal returneres fra funksjonen.
+
+
+## Tips and Triks
+
+- Har lagt inn typst som format. Greit å vite hvordan man får pdf versjon.
+- lagt inn ```#|label: setup``` i første chunk hvor bibliotek lastes. Dette sikrer at denne chunken blir kjørt før noe kode blir kjørt. Legger vi et nytt bibliotek her vil RStudio automagisk kjenne til funksjonene i dette biblioteket.
+- `suppressPackageStartupMessages()` for hver pakke virker, men den anbefalte løsningen er å bruke Quarto sin chunk-opsjon ```#| message: false```.
+- `lubridate` er nå en del av standard `tidyverse` så `library(tidyverse)` vil laste lubridate.
+- Jeg la inn `#| paged.print: false` i chunk-en med `print(pend_02_24_boBF, n = 5)`. Jeg synes print av tibble til console gir mer informasjon og bruker mindre plass.
+- Pendlematrisene vi genererer er noe beist og ikke lette å reprodusere i et dokument. Et triks er å la dem få en hel side hver i landscape mode. Her gjør det seg emd en ordentlig caption. På den ene har jeg også vist hvordan man kan legge inne hyperlenker til kilde for dataene.
+- Når det gjelder å "printe" ulike matriser slik som `mat_49_2020` vil jeg anbefale å ha dette i en egen chunk og bruke `paged.print: false` som chunk opsjon. Dette gir større kontroll og gjør det enklere å spesifiser `echo`, `labels` etc.
+- For `mat_49_2020_tab` vil jeg også anbefale å printe denne fra egen chunk. Jeg vil også anbefale å bruke Quarto sitt system for label (dvs. kryssreferanse) og caption istedenfor fextable sin set_title(). Gir et mer konsistent dokument og tilgang til kryssreferanser, list of tables etc.
+- andel_samme_kommune_2023_tab. OK tabell med bruk av kable. Igjen vil jeg anfefale å bruke Quarto sitt system for caption og kryssreferanse. Variabelen `aar` er unødvendig, ingen informasjonsverdi.
+- I plot intern_utvalg vil jeg også anbefale Quarto istedenfor `labs(title = )`.
+- Artig at dere har skrevet deres egen funksjon `plot_pendlere`. Personlig er jeg ingen fan av å bruke pipes inne i definisjonen av en funksjon.
+- Ser at dere redefinerer funksjonen `plot_pendlere` flere ganger. Da mister en litt av poenget. Bør strebe etter en mer generell definisjon der en tar høyde for ulike varainter vha. argumentene til funksjonen.
+- Endret tittel til "Hvor pendler folk bosatt i Sandnes kommune til?" fra "Hvor jobber folk bosatt i Sandnes kommune?" siden mange bosatt i Sandnes nok også jobber i Sandnes.
+- help(set_caption) sier: “In 'Quarto', captions and cross-references are handled differently compared to 'R Markdown', where flextable takes care of the job. In Quarto, the responsibility for managing captions lies with the Quarto framework itself. Consequently, the set_caption() function in 'flextable' is not as useful in a 'Quarto' document. The formatting and numbering of captions are determined by Quarto rather than flextable. Please refer to the Quarto documentation for more information on how to work with captions in Quarto.”
+
+
+
+
+
+
+
+
