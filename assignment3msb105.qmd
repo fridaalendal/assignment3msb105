@@ -1,7 +1,10 @@
 ---
 title: "Assignment 3 in msb105"
 author: "Katinca Valvatne & Frida Alendal"
-format: html
+papersize: a4
+format: 
+  html: default
+  typst: default
 toc: true
 toc-depth: 3
 code-fold: show
@@ -10,14 +13,14 @@ theme: cosmo
 number-sections: true
 editor: visual
 lang: nb
-
 ---
 
 ```{r}
-library(tidyverse) |> suppressPackageStartupMessages()
-library(lubridate) |> suppressPackageStartupMessages()
-library(PxWebApiData) |> suppressPackageStartupMessages()
-library(flextable) |> suppressPackageStartupMessages()
+#| label: setup
+#| message: false
+library(tidyverse)
+library(PxWebApiData)
+library(flextable)
 ```
 
 # Kommuner i Bokna-regionen
@@ -53,9 +56,6 @@ pend_02_24_ssb_boBF <- ApiData12(
 
 ```
 
-
-
-
 ```{r}
 pend_02_24_boBF <- pend_02_24_ssb_boBF %>% 
   mutate(
@@ -85,6 +85,7 @@ pend_02_24_boBF <- pend_02_24_ssb_boBF %>%
 ```
 
 ```{r}
+#| paged.print: false
 print(pend_02_24_boBF, n = 5)
 ```
 
@@ -126,11 +127,11 @@ pend_02_24_arbBF <- pend_02_24_ssb_arbBF %>%
 ```
 
 ```{r}
+#| paged.print: false
 print(pend_02_24_arbBF, n = 5)
 ```
 
 # Kommunesammenslåingene
-
 
 ```{r}
 # Kommuner i Bokna-regionen som IKKE er med i nye Stavanger, Sandnes, Vindafjord
@@ -193,24 +194,24 @@ pend_02_24_boBF_agg <- pend_02_24_boBF %>%
 ```
 
 ```{r}
+#| paged.print: false
 print(pend_02_24_boBF_agg, n = 5)
-
 ```
 
 ```{r}
 dim(pend_02_24_boBF_agg)
-
 ```
 
 ```{r}
+#| paged.print: false
 pend_02_24_boBF_agg %>% 
   filter(nye_akom_navn == "Stavanger") %>%   
   arrange(aar, nye_bkom_navn) %>%            
   print(n = 22)
-
 ```
 
 ```{r}
+#| paged.print: false
 pend_02_24_boBF_agg %>% 
   filter(
     nye_akom_navn == "Stavanger",
@@ -218,7 +219,6 @@ pend_02_24_boBF_agg %>%
   ) %>% 
   arrange(aar) %>% 
   print(n = 23)
-
 ```
 
 ```{r}
@@ -230,9 +230,7 @@ pend_02_24_boBF_agg |>
 
 # Arbeidssted Bokna-Regionen
 
-
 ```{r}
-
 pend_02_24_arbBF <- pend_02_24_arbBF %>% 
   mutate(
     # BOSTED (bkom): Bokna-kommuner + resten av landet = RAL
@@ -276,20 +274,18 @@ pend_02_24_arbBF_agg <- pend_02_24_arbBF %>%
   summarise(pendlere = sum(pendlere), .groups = "drop")
 
 dim(pend_02_24_arbBF_agg)
-
 ```
 
 ```{r}
+#| paged.print: false
 pend_02_24_arbBF_agg %>% 
   filter(nye_akom_navn == "Stavanger",
          nye_bkom_navn == "Stavanger") %>% 
   arrange(aar) %>% 
   print(n = 23)
-
 ```
 
 ```{r}
-
 pend_02_24_boBF_agg <- pend_02_24_boBF_agg %>% 
   rename(
     akom      = nye_akom,
@@ -305,36 +301,49 @@ pend_02_24_arbBF_agg <- pend_02_24_arbBF_agg %>%
     bkom      = nye_bkom,
     bkom_navn = nye_bkom_navn
   )
-
-names(pend_02_24_boBF_agg)
-names(pend_02_24_arbBF_agg)
-
 ```
 
 ```{r}
+#| paged.print: false
+names(pend_02_24_boBF_agg)
+```
 
+```{r}
+#| paged.print: false
+names(pend_02_24_arbBF_agg)
+```
+
+```{r}
 boBF_arb_RAL <- pend_02_24_boBF_agg %>% 
   filter(akom == "k9999")
-
-dim(boBF_arb_RAL)
-
 ```
 
 ```{r}
+dim(boBF_arb_RAL)
+```
 
+```{r}
 pend_02_24 <- bind_rows(
   pend_02_24_arbBF_agg,
   boBF_arb_RAL
 )
-
-names(pend_02_24)
-dim(pend_02_24)
-print(pend_02_24, n = 5)
-
 ```
 
 ```{r}
+#| paged.print: false
+names(pend_02_24)
+```
 
+```{r}
+dim(pend_02_24)
+```
+
+```{r}
+#| paged.print: false
+print(pend_02_24, n = 5)
+```
+
+```{r}
 rm(
   boBF_arb_RAL,
   pend_02_24_arbBF,
@@ -345,12 +354,9 @@ rm(
 
 ```
 
-
 # Totalt antall arbeidstakere i hele landet per år
 
-
 ```{r}
-
 # Fylkesnummer vi skal hente (uten Svalbard og kontinentalsokkelen)
 fnr <- c(
   "30", "01", "02", "06", "03", "34", "04", "05", "38",
@@ -362,9 +368,6 @@ fnr <- c(
 ```
 
 ```{r}
-
-library(PxWebApiData)
-
 tot_arb_HL_raw <- ApiData12(
   urlToData    = "11616",
   Region       = fnr,
@@ -373,30 +376,37 @@ tot_arb_HL_raw <- ApiData12(
   ContentsCode = "Sysselsatte personer bosatt i regionen",
   Tid          = as.character(2002:2024)
 )
-
-names(tot_arb_HL_raw)
-head(tot_arb_HL_raw)
-
-
 ```
 
 ```{r}
+#| paged.print: false
+names(tot_arb_HL_raw)
+```
 
-library(dplyr)
+```{r}
+#| paged.print: false
+head(tot_arb_HL_raw) |> 
+  print(width = 70)
+```
 
+```{r}
 tot_arb_HL <- tot_arb_HL_raw %>%
   group_by(Tid) %>%
   summarise(arbtak_HL = sum(value), .groups = "drop") %>%
   rename(aar = Tid)
+```
 
+```{r}
 dim(tot_arb_HL)
-print(tot_arb_HL, n = 10)
+```
 
+```{r}
+#| paged.print: false
+print(tot_arb_HL, n = 10)
 ```
 
 ```{r}
 BF <- c(knr_u_SSV, "k1103", "k1108", "k1160")
-
 ```
 
 ```{r}
@@ -404,10 +414,15 @@ bBFjHL <- pend_02_24 %>%
   filter(bkom %in% BF) %>%          # bor i BF
   group_by(aar) %>%
   summarise(bBFjHL = sum(pendlere))
+```
 
+```{r}
 dim(bBFjHL)
-print(bBFjHL, n = 5)
+```
 
+```{r}
+#| paged.print: false
+print(bBFjHL, n = 5)
 ```
 
 ```{r}
@@ -418,10 +433,15 @@ bRALjBF <- pend_02_24 %>%
   ) %>%
   group_by(aar) %>%
   summarise(bRALjBF = sum(pendlere))
+```
 
+```{r}
 dim(bRALjBF)
-print(bRALjBF, n = 5)
+```
 
+```{r}
+#| paged.print: false
+print(bRALjBF, n = 5)
 ```
 
 ```{r}
@@ -432,10 +452,15 @@ tot_arb_HL <- tot_arb_HL %>%
   mutate(
     bRALjRAL = arbtak_HL - bBFjHL - bRALjBF
   )
+```
 
+```{r}
 dim(tot_arb_HL)
-print(tot_arb_HL, n = 10)
+```
 
+```{r}
+#| paged.print: false
+print(tot_arb_HL, n = 10)
 ```
 
 ```{r}
@@ -448,10 +473,15 @@ total <- tot_arb_HL %>%
     bkom_navn = "TotaltArb",
     .before   = pendlere
   )
+```
 
+```{r}
 dim(total)
-print(total, n = 5)
+```
 
+```{r}
+#| paged.print: false
+print(total, n = 5)
 ```
 
 ```{r}
@@ -464,15 +494,19 @@ p_bRALjRAL <- tot_arb_HL %>%
     bkom_navn = "RAL",
     .before   = pendlere
   )
+```
 
+```{r}
 dim(p_bRALjRAL)
-print(p_bRALjRAL, n = 5)
+```
 
+```{r}
+#| paged.print: false
+print(p_bRALjRAL, n = 5)
 ```
 
 ```{r}
 pend_02_24 <- bind_rows(pend_02_24, p_bRALjRAL)
-
 ```
 
 ```{r}
@@ -488,18 +522,49 @@ pendlematrise_2010 <- pend_02_24 %>%
     values_from = pendlere,
     values_fill = 0
   )
-
-pendlematrise_2010
-
 ```
 
 ```{r}
-library(flextable)
-
-pendlematrise_2010 %>% 
-  as_flextable(max_row = 30, show_coltype = FALSE)
-
+#| echo: true
+#| eval: false
+pendlematrise_2010 |> 
+  print(width = 140, n = 25)
 ```
+
+
+```{r}
+#| paged.print: false
+#| echo: false
+pendlematrise_2010 |> 
+  print(width = 70)
+```
+
+
+
+```{r}
+#| echo: true
+#| eval: false
+pendlematrise_2010 %>% 
+  as_flextable(max_row = 30, show_coltype = FALSE) |> 
+  delete_part("footer") |> 
+  autofit()
+```
+
+::: {.landscape}
+
+```{r}
+#| label: tbl-pmat-2010
+#| tbl-cap: Pendlematrise for Bokna-regionen 2010.
+#| echo: false
+pendlematrise_2010 %>% 
+  as_flextable(max_row = 30, show_coltype = FALSE) |> 
+  fontsize(size = 9) |> 
+  delete_part("footer") |>
+  line_spacing(space = +.5) |> 
+  autofit()
+```
+
+:::
 
 ```{r}
 totalt_arb <- pend_02_24 |>
@@ -528,10 +593,15 @@ pendle_data_02_24 <- bind_rows(
   totalt_bo,
   total
 )
+```
 
+```{r}
 dim(pendle_data_02_24)
-print(pendle_data_02_24, n = 5)
+```
 
+```{r}
+#| paged.print: false
+print(pendle_data_02_24, n = 5)
 ```
 
 ```{r}
@@ -543,6 +613,7 @@ names(pendle_data_02_24)
 ```
 
 ```{r}
+#| paged.print: false
 print(pendle_data_02_24, n = 5)
 ```
 
@@ -579,10 +650,15 @@ names(andel_pendle_data_02_24)
 tab <- andel_pendle_data_02_24 |> 
   filter(aar == 2017) |> 
   select(-aar, -bkom_navn)
+```
 
-
+```{r}
 names(tab) <- str_replace_all(names(tab), "_", "\n")
+```
 
+```{r}
+#| echo: true
+#| eval: false
 tab |> 
   as_flextable(
     show_coltype = FALSE,
@@ -596,12 +672,30 @@ tab |>
   delete_part("footer")
 ```
 
+
+::: {.landscape}
+
 ```{r}
+#| label: tbl-pmat-2017
+#| tbl-cap: Pendlematrise for 2017 for Bokna-regionen. Data fra [SSB](https://www.ssb.no/) statistikktabellene [03321](https://www.ssb.no/statbank/table/03321) og [11616](https://www.ssb.no/statbank/table/11616).
+#| echo: false
+tab |> 
+  as_flextable(
+    show_coltype = FALSE,
+    max_row = 30
+  ) |> 
+  #rotate(rotation = "tbrl", part = "header") |> 
+  line_spacing(space = 0.5, part = "body") |> 
+  colformat_double(big.mark = ' ', digits = 2) |> 
+  fontsize(size = 9, part = "all") |> 
+  autofit() |> 
+  delete_part("footer")
+```
 
-library(dplyr)
-library(tidyr)
-library(lubridate)
+:::
 
+
+```{r}
 andel_pendle_data_02_24_long <- andel_pendle_data_02_24 |>
   pivot_longer(
     cols = starts_with("k"),
@@ -634,13 +728,13 @@ names(andel_pendle_data_02_24_long)
 ```
 
 ```{r}
+#| paged.print: false
 print(andel_pendle_data_02_24_long, n = 8, width = 70)
 ```
 
 ## Bo- og arbeidsmarkedsregioner NIBR/TØI 2020
 
 ```{r}
-
 ba49 <- c("k1103", "k1108", "k1124", "k1127", "k1119", "k1120", "k1121", "k1122", "k1130", "k1144")
 ba50 <- c("k1106", "k1146", "k1149", "k4612", "k1145"
 )
@@ -652,12 +746,9 @@ ba53 <- c("k1135"
 )
 ba55 <- c("k1160", "k4611"
 )
-
-  
 ```
 
 ```{r}
-
 pend_ba <- pendle_data_02_24 |>
   filter(akom != "k0000", bkom != "k0000") |>
   mutate(
@@ -684,7 +775,6 @@ pend_ba <- pendle_data_02_24 |>
       TRUE ~ NA_character_
     )
   )
-
 ```
 
 ```{r}
@@ -697,17 +787,19 @@ ba_mat_2010 <- pend_ba |>
     values_from = pendlere
   ) |>
   arrange(ba_reg_bo)
-
-ba_mat_2010
-
 ```
+
+```{r}
+#| paged.print: false
+ba_mat_2010
+```
+
 
 ## Pendling internt i region 49
 
 ```{r}
 reg49_kom <- c("k1103","k1108","k1119","k1120","k1121",
                "k1122","k1124","k1127","k1130","k1144")
-
 ```
 
 ```{r}
@@ -720,11 +812,9 @@ pend_49 <- pend_ba |>
     ba_reg_bo == "bo49" ~ bkom,
     .default = "k9999"
   ))
-
 ```
 
 ```{r}
-
 mat_49_2020 <- pend_49 |>
   filter(aar == "2020") |> 
   mutate(
@@ -738,10 +828,13 @@ mat_49_2020 <- pend_49 |>
     values_from = pendlere
   ) |>
   arrange(bkom)
-
-mat_49_2020
-
 ```
+
+```{r}
+#| paged.print: false
+mat_49_2020 |> print(width = 70)
+```
+
 
 ```{r}
 rekkefolge <- c("1103","1108","1119","1120","1121",
@@ -753,12 +846,19 @@ mat_49_2020_tab <- mat_49_2020 |>
   flextable() |>
   colformat_int(big.mark = " ") |>   
   align(align = "center", part = "all") |>
-  autofit() |>
-  set_caption("Pendlematrise for region 49, 2020")
-
-mat_49_2020_tab
-
+  autofit() 
+# |>
+#   set_caption("Pendlematrise for region 49, 2020")
 ```
+
+```{r}
+#| label: tbl-pmat-49-2020
+#| tbl-cap: Pendlematrise for region 49, 2020.
+mat_49_2020_tab
+```
+
+
+
 
 ```{r}
 sola_kvitsoy_2020 <- mat_49_2020 |>
@@ -797,16 +897,30 @@ inn <- mat_49_2020 |>
                values_to = "inn")
 
 balanse <- left_join(ut, inn, by = "bkom")
+```
 
+```{r}
+#| paged.print: false
 balanse
+```
 
+```{r}
 kommuner_flere_ut <- balanse |>
   filter(ut > inn) |>
   pull(bkom)
-
-kommuner_flere_ut
-
 ```
+
+```{r}
+kommuner_flere_ut |> 
+  (\(x) {
+  paste(
+    "Kommuner hvor flere pendler ut enn inn: ", 
+    paste(x, collapse = ", "
+          )
+  )
+  })()
+```
+
 
 ## Definerer funksjoner for plot og tabell
 
@@ -824,7 +938,6 @@ tab_pendlere <- function(data, knr, y = 2023, n = 7) {
   flxtab = line_spacing(flxtab, space = 0.3)
   flxtab
 }
-
 ```
 
 ```{r}
@@ -881,10 +994,35 @@ andel_samme_kommune_2023_tab <- andel_samme_kommune_2023 |>
     caption = "Tabell som viser andelen av arbeidstakere som jobber i samme kommune som hvor de bor i 2023.",
     booktabs = TRUE
   )
-
-andel_samme_kommune_2023_tab
-
 ```
+
+```{r}
+andel_samme_kommune_2023_tab
+```
+```{r}
+#| label: tbl-andel-internpend-2023
+#| tbl-cap: Andelene av arbeidstakere som bor og jobber i samme kommune i 2023.
+# ag: Hvordan jeg ville laget tabellen.
+ andel_samme_kommune_2023 |> 
+  filter(!akom %in% c("k0000", "k9999")) |> 
+  arrange(akom) |> 
+  select(
+    `Kommune-\nnummer` = akom, 
+    `Kommune-\nnavn` = akom_navn,
+    Andel = andel
+    ) |> 
+  mutate(
+    Andel = paste0(as.character(round(Andel, 1)),"%")
+  ) |> 
+  as_flextable(
+    show_coltype = FALSE,
+    max_row = 30
+  ) |> 
+  line_spacing(space = 0.7) |> 
+  delete_part("footer")
+```
+
+I @tbl-andel-internpend-2023 er andelen internpendlere rapportert for kommunene i Bokna-regionen.
 
 ```{r}
 intern_utvalg <- apd_0224_l |>
@@ -955,20 +1093,22 @@ plot_pendlere <- function(data, bosted_kode, grense = 1) {
 
 ```
 
+
 ```{r}
+#| warning: false
 plot_pendlere(apd_0224_l, "k1103", grense = 1) +
   ylim(0, 12)
-
 ```
 
-```{r}
 
+```{r}
 tab_pendlere(apd_0224_l, "k1103") |>
-  colformat_double(digits = 3)
-
+  colformat_double(digits = 1)
 ```
 
 ```{r}
+#| label: fig-intern-1103-1008
+#| fig-cap: "Utvikling: Andel som både bor og jobber i Stavanger og Sandnes."
 stav_sand <- apd_0224_l |>
   dplyr::filter(
     akom == bkom,                    
@@ -979,8 +1119,8 @@ stav_sand <- apd_0224_l |>
 ggplot(stav_sand, aes(x = aar, y = andel, colour = Bosted)) +
   geom_line(linewidth = 0.75) +
   labs(
-    title = "Utvikling: Andel som både bor og jobber i Stavanger og Sandnes",
-    x     = "aar",
+    #title = "Utvikling: Andel som både bor og jobber i Stavanger og Sandnes",
+    x     = "År",
     y     = "Andel av arbeidstakere",
     colour = "Arbeidssted"
   ) +
@@ -1014,7 +1154,7 @@ plot_pendlere <- function(data, bosted_kode, grense = 1) {
                colour = akom_navn, group = akom_navn)) +
     geom_line(linewidth = 0.75) +
     labs(
-      title  = paste0("Hvor jobber folk bosatt i ", bosted_navn, " kommune?"),
+      title  = paste0("Hvor pendler folk bosatt i ", bosted_navn, " kommune til?"),
       x      = "aar",
       y      = "Andel av arbeidstakere",
       colour = "Arbeidssted"
@@ -1029,28 +1169,26 @@ plot_pendlere <- function(data, bosted_kode, grense = 1) {
 
 ```{r}
 plot_pendlere(apd_0224_l, "k1108", grense = 1.7)
-  
-
 ```
 
 ```{r}
 tab_pendlere(apd_0224_l, "k1108") |> 
-  colformat_double(digits = 3)
+  colformat_double(digits = 1)
 ```
 
 ```{r}
+#| warning: false
 plot_pendlere(apd_0224_l, "k1124", grense = 1.7) +
   ylim(5, 40)   
 
 ```
 
 ```{r}
-
 #| label: tbl-solaPend
 #| tbl-cap: Andelene som pendler ut av Sola kommune i 2023.
 
 tab_pendlere(apd_0224_l, "k1124") |>
-  colformat_double(digits = 3)
+  colformat_double(digits = 1)
 ```
 
 ```{r}
@@ -1066,7 +1204,7 @@ plot_pendlere(apd_0224_l, "k1120", grense = 3) +
 ```{r}
 
 tab_pendlere(apd_0224_l, "k1120", n = 7) |>
-  colformat_double(digits = 3)
+  colformat_double(digits = 1)
 ```
 
 ```{r}
@@ -1082,7 +1220,7 @@ plot_pendlere(apd_0224_l, "k1106", grense = 2) +
 ```{r}
 
 tab_pendlere(apd_0224_l, "k1106", n = 7) |>
-  colformat_double(digits = 3)
+  colformat_double(digits = 1)
 ```
 
 ```{r}
@@ -1103,7 +1241,7 @@ plot_pendlere(
 ```{r}
 
 tab_pendlere(apd_0224_l, "k1149") |>
-  colformat_double(digits = 3)
+  colformat_double(digits = 1)
 
 ```
 
@@ -1123,94 +1261,83 @@ pend_mat <- function(data, y) {
       names_from = akom,
       values_from = pendlere              
     ) |>
-    dplyr::arrange(bkom) |>
-    as.data.frame()
+    dplyr::arrange(bkom)
 }
-
-
 ```
 
 ```{r}
-pend_mat(pendle_data_02_24, y = 2002)
-
-```
-
-
-
-
-
-```{r}
-
-
-pendlemat_2002 <- pend_mat(pendle_data_02_24, y = 2002)
-
-pendlemat_2002_tab <-
-  pendlemat_2002 |>
-  flextable::flextable() |>
-  flextable::colformat_int(big.mark = " ") |>
-  flextable::align(align = "center", part = "all") |>
-  flextable::autofit() |>
-  flextable::set_caption("Table 12: Pendlematrise år 2002.")
-
-pendlemat_2002_tab
-
-```
-
-
-```{r}
-pend_mat_tab <- function(data, y, caption = NULL) {
-  mat <- pend_mat(data, y)
-
-  flextable::flextable(mat) |>
-    flextable::colformat_int(big.mark = " ") |>
-    flextable::align(align = "center", part = "all") |>
-    flextable::autofit() |>
-    flextable::set_caption(
-      if (is.null(caption)) paste0("Pendlematrise år ", y, ".") else caption
-    )
+pend_mat_tab <- function(data, y) {
+  mat = pend_mat(data, y)
+  mat = flextable::as_flextable(mat, show_coltype = FALSE, max_row = 30)
+  mat = flextable::colformat_num(mat, big.mark = " ")
+  mat = flextable::fontsize(mat, size = 10, part = "all")
+  mat = flextable::line_spacing(mat, space = 0.5)
+  mat = flextable::align(mat, align = "center", part = "all")
+  mat = flextable::autofit(mat)
+  mat = flextable::delete_part(mat, "footer")
+  # mat = flextable::set_caption(mat,
+  #     if (is.null(caption)) paste0(caption, y, ".") else caption
+  #   )
+  mat
 }
+```
 
+## Pendlematriser
+
+I @tbl-pmat-2002, @tbl-pmat-2005, @tbl-pmat-2010, @tbl-pmat-2015, @tbl-pmat-2023 og @tbl-pmat-2024 er gjengitt pendlematriser for Bokna-regionen for årene 2002, 2005, 2010B, 2015, 2023 og 2024.
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pmat-2002
+#| tbl-cap: Pendlematrise år 2002.
+#| echo: false
+pend_mat_tab(pendle_data_02_24, y = 2002) 
 ```
 
 
 ```{r}
-pend_mat_tab(pendle_data_02_24, 2005)
+#| label: tbl-pmat-2005
+#| tbl-cap: Pendlematrise Bokna-regionen 2005.
+#| echo: false
+pend_mat_tab(pendle_data_02_24, y = 2005)
 ```
 
+:::
+
+::: {.landscape}
 
 ```{r}
+#| label: tbl-pmat-2010B
+#| tbl-cap: Pendlematrise Bokna-regionen 2010.
+#| echo: false
 pend_mat_tab(pendle_data_02_24, 2010)
 ```
 
 
 ```{r}
+#| label: tbl-pmat-2015
+#| tbl-cap: Pendlematrise Bokna-regionen 2015.
+#| echo: false
 pend_mat_tab(pendle_data_02_24, 2015)
 ```
+:::
 
-
+::: {.landscape}
 
 ```{r}
+#| label: tbl-pmat-2023
+#| tbl-cap: Pendlematrise Bokna-regionen 2023.
+#| echo: false
 pend_mat_tab(pendle_data_02_24, 2023)
 ```
 
+
 ```{r}
+#| label: tbl-pmat-2024
+#| tbl-cap: Pendlematrise Bokna-regionen 2024.
+#| echo: false
 pend_mat_tab(pendle_data_02_24, 2024)
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+:::
